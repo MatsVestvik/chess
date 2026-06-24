@@ -1,11 +1,16 @@
+"use client";
 import { Chess } from "chess.js";
+import { useState } from "react";
 
 const whitePieces = { p: "♙", n: "♘", b: "♗", r: "♖", q: "♕", k: "♔" };
 const blackPieces = { p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚" };
 
+
 export default function Home() {
   const chess = new Chess();
   const board = chess.board();
+
+  const [selected, setSelected] = useState(null);
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 60px)" }}>
