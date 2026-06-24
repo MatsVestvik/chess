@@ -1,15 +1,30 @@
+import { Chess } from "chess.js";
+
+const whitePieces = { p: "♙", n: "♘", b: "♗", r: "♖", q: "♕", k: "♔" };
+const blackPieces = { p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚" };
+
 export default function Home() {
-  const rows = Array.from({ length: 8 });
-  const cols = Array.from({ length: 8 });
+  const chess = new Chess();
+  const board = chess.board();
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 60px)" }}>
-      {rows.map((_, rowIndex) =>
-        cols.map((_, colIndex) => {
+      {board.map((row, rowIndex) =>
+        row.map((square, colIndex) => {
 
-          let isDark = ((rowIndex + colIndex)%2 ==1 ? true:false);
+          let isDark = ((rowIndex + colIndex)%2 === 1 ? true:false);
 
           let squareColor = (isDark ? "#769656" : "#eeeed2");
+
+          let symbol;
+          if (square != null){
+            if(square.color === "w"){
+              symbol = whitePieces[square.type]
+            }
+            else if(square.color === "b"){
+              symbol = blackPieces[square.type]
+            }
+          }
 
           return (
             <div
@@ -17,9 +32,15 @@ export default function Home() {
               style={{
                 width: 60,
                 height: 60,
-                backgroundColor: squareColor
+                backgroundColor: squareColor,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 36,
               }}
-            />
+            >
+            {symbol}
+            </div>
           );
         })
       )}
