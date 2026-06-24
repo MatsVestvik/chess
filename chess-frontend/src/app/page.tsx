@@ -4,13 +4,18 @@ import { useState } from "react";
 
 const whitePieces = { p: "♙", n: "♘", b: "♗", r: "♖", q: "♕", k: "♔" };
 const blackPieces = { p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚" };
+const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 
 export default function Home() {
   const chess = new Chess();
   const board = chess.board();
 
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<string | null>(null);
+
+  function squareName(rowIndex: number, colIndex: number): string {
+    return files[colIndex] + (8-(rowIndex))
+  }
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 60px)" }}>
@@ -34,6 +39,19 @@ export default function Home() {
           return (
             <div
               key={`${rowIndex}-${colIndex}`}
+              onClick={() => {
+                const name = squareName(rowIndex, colIndex);
+                if(selected == null){
+                  if(square != null){
+                   setSelected(name);
+                  }
+                }
+                else{
+                  console.log(`${selected} -> ${name}`);
+                  setSelected(null);
+                }
+                  // TODO: logikk her
+              }}
               style={{
                 width: 60,
                 height: 60,
@@ -47,8 +65,10 @@ export default function Home() {
             {symbol}
             </div>
           );
+
         })
       )}
     </div>
+
   );
 }
