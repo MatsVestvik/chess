@@ -1,6 +1,7 @@
 "use client";
 import { Chess } from "chess.js";
 import { useState } from "react";
+import { useRef } from "react";
 
 const whitePieces = { p: "♙", n: "♘", b: "♗", r: "♖", q: "♕", k: "♔" };
 const blackPieces = { p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚" };
@@ -8,8 +9,10 @@ const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 
 export default function Home() {
-  const chess = new Chess();
-  const board = chess.board();
+
+  const chessRef = useRef(new Chess());
+  const [fen, setFen] = useState(chessRef.current.fen());
+  const board = chessRef.current.board();
 
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -47,10 +50,15 @@ export default function Home() {
                   }
                 }
                 else{
-                  console.log(`${selected} -> ${name}`);
+                  try {
+                    chessRef.current.move({ from: selected, to: name });
+                    // TODO: trekket gikk gjennom - hva må du gjøre for at
+                    // brettet på skjermen skal vise den nye posisjonen?
+                  } catch (error) {
+                    console.log("Ugyldig trekk");
+                  }
                   setSelected(null);
                 }
-                  // TODO: logikk her
               }}
               style={{
                 width: 60,
