@@ -2,7 +2,7 @@
 import { Chess } from "chess.js";
 import { useState } from "react";
 import { useRef } from "react";
-import { getPieceStyle } from "@/lib/pieces"; 
+import { getPieceStyle } from "@/lib/pieces";
 
 const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
@@ -13,16 +13,38 @@ export default function Home() {
 
   const [selected, setSelected] = useState<string | null>(null);
 
+  // Konfigurasjon for brettet ditt
+  const BOARD_SIZE_SCALE_CONST = 3;
+  const BOARD_IMAGE_SIZE = 202 * BOARD_SIZE_SCALE_CONST; // Total størrelse på bildet med kanter
+  const BOARD_SIZE = 184 * BOARD_SIZE_SCALE_CONST; // Størrelse på selve brettet
+  const BORDER_SIZE = (BOARD_IMAGE_SIZE - BOARD_SIZE) / 2; // 9px
+  const SQUARE_SIZE = BOARD_SIZE / 8; // 23px
+
   function squareName(rowIndex: number, colIndex: number): string {
     return files[colIndex] + (8 - rowIndex);
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 90px)" }}>
+    <div 
+      style={{
+        width: BOARD_IMAGE_SIZE,
+        height: BOARD_IMAGE_SIZE,
+        backgroundImage: "url('/board.png')", // Sett riktig filnavn
+        backgroundSize: `${BOARD_IMAGE_SIZE}px ${BOARD_IMAGE_SIZE}px`,
+        backgroundPosition: "0 0",
+        display: "grid",
+        gridTemplateColumns: `repeat(8, ${SQUARE_SIZE}px)`,
+        gap: 0,
+        padding: `${BORDER_SIZE}px`, // 9px padding på alle kanter
+        boxSizing: "border-box",
+        imageRendering: "pixelated",
+      }}
+    >
       {board.map((row, rowIndex) =>
         row.map((square, colIndex) => {
-          let isDark = (rowIndex + colIndex) % 2 === 1;
-          let squareColor = isDark ? "#769656" : "#eeeed2";
+          // Vi trenger ikke backgroundColor lenger siden bakgrunnsbildet har det
+          // Men vi kan ha gjennomsiktige ruter for interaksjon
+          const isDark = (rowIndex + colIndex) % 2 === 1;
 
           return (
             <div
@@ -44,20 +66,23 @@ export default function Home() {
                 }
               }}
               style={{
-                width: 90,
-                height: 90,
-                backgroundColor: squareColor,
+                width: SQUARE_SIZE,
+                height: SQUARE_SIZE,
+                // Gjennomsiktig slik at bakgrunnsbildet vises
+                backgroundColor: "transparent",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 36,
                 cursor: "pointer",
+                // Valgfritt: marker valgt rute
+                outline: selected === squareName(rowIndex, colIndex) ? "3px solid yellow" : "none",
+                outlineOffset: "-3px",
               }}
             >
               {square && (
                 <div 
                   style={{
-                    ...getPieceStyle(square),
+                    ...getPieceStyle(square, "/pieces.png"),
                     margin: "auto",
                   }}
                 />
