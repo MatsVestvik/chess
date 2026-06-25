@@ -54,7 +54,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
 
   // Update board when FEN changes
   useEffect(() => {
-    const chess = new Chess(fen);
+    const chess = new Chess();
     chessRef.current = chess;
     setBoard(chess.board());
     setIsMyTurn((color === 'white' && chess.turn() === 'w') || (color === 'black' && chess.turn() === 'b'));
@@ -209,7 +209,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
         style={{
           width: BOARD_IMAGE_SIZE,
           height: BOARD_IMAGE_SIZE,
-          backgroundImage: "url('/board.png')",
+          backgroundImage: "url('/assets/boards/board.png')",
           backgroundSize: `${BOARD_IMAGE_SIZE}px ${BOARD_IMAGE_SIZE}px`,
           backgroundPosition: "0 0",
           display: "grid",
@@ -257,7 +257,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
                   >
                     <div
                       style={{
-                        ...getPieceStyle(square, "/shadows.png"),
+                        ...getPieceStyle(square, "/assets/shadows/shadows.png"),
                         position: "absolute",
                         top: 0,
                         left: 0,
@@ -268,7 +268,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
                     />
                     <div
                       style={{
-                        ...getPieceStyle(square, "/pieces.png"),
+                        ...getPieceStyle(square, "/assets/pieces/pieces.png"),
                         position: "relative",
                         zIndex: 1,
                         pointerEvents: "none",
@@ -336,7 +336,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
                     style={{
                       ...getPieceStyle(
                         { color: animatingMove.piece.color, type: animatingMove.piece.type },
-                        "/shadows.png"
+                        "/assets/shadows/shadows.png"
                       ),
                       position: "absolute",
                       top: 0,
@@ -350,7 +350,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
                     style={{
                       ...getPieceStyle(
                         { color: animatingMove.piece.color, type: animatingMove.piece.type },
-                        "/pieces.png"
+                        "assets/pieces/pieces.png"
                       ),
                       position: "relative",
                       zIndex: 1,
