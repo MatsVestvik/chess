@@ -205,10 +205,33 @@ export default function Home() {
             const x = fromCoords.x + (toCoords.x - fromCoords.x) * animationProgress;
             const y = fromCoords.y + (toCoords.y - fromCoords.y) * animationProgress;
             
-            // Start at lifted position (-30px) and end at normal position (-15px)
-            const startYOffset = -30;
-            const endYOffset = -15;
-            const currentYOffset = startYOffset + (endYOffset - startYOffset) * animationProgress;
+            // Stay lifted (-30px) until reaching the target, then descend to -15px
+            // Use a threshold of 0.9 (90% of the way there)
+            const descentStart = 0.9;
+            let currentYOffset = -30; // Start lifted
+            
+            if (animationProgress > descentStart) {
+              // Calculate how far into the descent we are (0 to 1)
+              const descentProgress = (animationProgress - descentStart) / (1 - descentStart);
+              // Ease out for smooth landing
+              const easedDescent = 1 - Math.pow(1 - descentProgress, 2);
+              currentYOffset = -30 + (15 * easedDescent); // From -30 to -15
+            }
+            
+            // Shadow stays offset and transparent during flight
+            // Only returns to normal during descent
+            let shadowOpacity = 0.5; // Keep at 0.5 during flight
+            let shadowOffsetX = -8; // Negative for left
+            let shadowOffsetY = -8; // Negative for up
+            
+            if (animationProgress > descentStart) {
+              // During descent, return to normal
+              const descentProgress = (animationProgress - descentStart) / (1 - descentStart);
+              const easedDescent = 1 - Math.pow(1 - descentProgress, 2);
+              shadowOpacity = 0.5 + (0.5 * easedDescent); // From 0.5 to 1.0
+              shadowOffsetX = -8 * (1 - easedDescent); // From -8 to 0
+              shadowOffsetY = -8 * (1 - easedDescent); // From -8 to 0
+            }
             
             return (
               <div
@@ -221,17 +244,7 @@ export default function Home() {
                   transition: "none",
                 }}
               >
-                <div
-                  style={{
-                    ...getPieceStyle(
-                      { color: animatingMove.piece.color, type: animatingMove.piece.type },
-                      "/pieces.png"
-                    ),
-                    position: "relative",
-                    zIndex: 1,
-                  }}
-                />
-                {/* Shadow that follows the piece */}
+                {/* Shadow - positioned with offset (up and left) */}
                 <div
                   style={{
                     ...getPieceStyle(
@@ -241,8 +254,21 @@ export default function Home() {
                     position: "absolute",
                     top: 0,
                     left: 0,
-                    opacity: 0.5 + 0.5 * (1 - animationProgress),
-                    transform: `translate(${8 * (1 - animationProgress)}px, ${8 * (1 - animationProgress)}px)`,
+                    opacity: shadowOpacity,
+                    transform: `translate(${shadowOffsetX}px, ${shadowOffsetY}px)`,
+                    pointerEvents: "none",
+                  }}
+                />
+                {/* Piece - on top of shadow */}
+                <div
+                  style={{
+                    ...getPieceStyle(
+                      { color: animatingMove.piece.color, type: animatingMove.piece.type },
+                      "/pieces.png"
+                    ),
+                    position: "relative",
+                    zIndex: 1,
+                    pointerEvents: "none",
                   }}
                 />
               </div>
