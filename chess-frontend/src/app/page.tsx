@@ -71,7 +71,7 @@ export default function Home() {
           
           // Animate over ~300ms
           const startTime = Date.now();
-          const duration = 300;
+          const duration = 500;
           
           const animate = () => {
             const elapsed = Date.now() - startTime;
@@ -201,18 +201,21 @@ export default function Home() {
             const fromCoords = getSquareCoords(animatingMove.from);
             const toCoords = getSquareCoords(animatingMove.to);
             
+            // Linear interpolation for position
             const x = fromCoords.x + (toCoords.x - fromCoords.x) * animationProgress;
             const y = fromCoords.y + (toCoords.y - fromCoords.y) * animationProgress;
             
-            // Piece is lifted during animation
-            const liftOffset = -15 - 15 * (1 - Math.sin(animationProgress * Math.PI));
+            // Start at lifted position (-30px) and end at normal position (-15px)
+            const startYOffset = -30;
+            const endYOffset = -15;
+            const currentYOffset = startYOffset + (endYOffset - startYOffset) * animationProgress;
             
             return (
               <div
                 style={{
                   position: "absolute",
                   left: x - PIECE_SIZE / 2,
-                  top: y - PIECE_SIZE / 2 + liftOffset,
+                  top: y - PIECE_SIZE / 2 + currentYOffset,
                   width: PIECE_SIZE,
                   height: PIECE_SIZE,
                   transition: "none",
@@ -226,7 +229,6 @@ export default function Home() {
                     ),
                     position: "relative",
                     zIndex: 1,
-                    transform: `scale(${1 + 0.1 * Math.sin(animationProgress * Math.PI)})`,
                   }}
                 />
                 {/* Shadow that follows the piece */}
@@ -239,7 +241,7 @@ export default function Home() {
                     position: "absolute",
                     top: 0,
                     left: 0,
-                    opacity: 0.5,
+                    opacity: 0.5 + 0.5 * (1 - animationProgress),
                     transform: `translate(${8 * (1 - animationProgress)}px, ${8 * (1 - animationProgress)}px)`,
                   }}
                 />
