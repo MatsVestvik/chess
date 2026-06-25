@@ -218,7 +218,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
             <span style={{ color: "#f44336" }}>Opponent disconnected</span>
           ) : (
             <span>
-              {isMyTurn ? 'Your turn' : "Opponent's turn"} • You are {color === 'white' ? '♔' : '♚'}
+              {isMyTurn ? 'Your turn' : "Opponent's turn"} • You are {color === 'white' ? '♚' : '♔'}
             </span>
           )}
         </div>
