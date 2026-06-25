@@ -20,7 +20,7 @@ interface MoveData {
 }
 
 export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChessBoardProps) {
-  const { socket, gameId, color, makeMove, getGameState, opponentDisconnected } = useGame();
+  const { socket, gameId, color, makeMove, getGameState, opponentDisconnected, leaveQueue } = useGame();
   const [fen, setFen] = useState("start");
   const [board, setBoard] = useState<any[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -54,10 +54,21 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
 
   // Update board when FEN changes
   useEffect(() => {
-    const chess = new Chess();
-    chessRef.current = chess;
-    setBoard(chess.board());
-    setIsMyTurn((color === 'white' && chess.turn() === 'w') || (color === 'black' && chess.turn() === 'b'));
+    if (fen === "start") {
+      const chess = new Chess();
+      chessRef.current = chess;
+      setBoard(chess.board());
+      setIsMyTurn((color === 'white' && chess.turn() === 'w') || (color === 'black' && chess.turn() === 'b'));
+    } else {
+      try {
+        const chess = new Chess(fen);
+        chessRef.current = chess;
+        setBoard(chess.board());
+        setIsMyTurn((color === 'white' && chess.turn() === 'w') || (color === 'black' && chess.turn() === 'b'));
+      } catch (error) {
+        console.error('Invalid FEN:', fen);
+      }
+    }
   }, [fen, color]);
 
   // Listen for game events
@@ -113,6 +124,8 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
         setFen(state.fen);
         setIsMyTurn((color === 'white' && state.turn === 'w') || (color === 'black' && state.turn === 'b'));
       }
+    }).catch((error) => {
+      console.error('Failed to get game state:', error);
     });
 
     return () => {
@@ -151,6 +164,12 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
     return selected === squareName(rowIndex, colIndex);
   };
 
+  // Handle back to lobby with queue cleanup
+  const handleBackToLobby = () => {
+    leaveQueue();
+    onBackToLobby();
+  };
+
   return (
     <div
       style={{
@@ -178,7 +197,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
         }}
       >
         <button
-          onClick={onBackToLobby}
+          onClick={handleBackToLobby}
           style={{
             padding: "8px 16px",
             fontSize: "14px",
@@ -222,7 +241,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
         }}
       >
         {board.map((row: any, rowIndex: number) =>
-            row.map((square: any, colIndex: number) => {
+          row.map((square: any, colIndex: number) => {
             const isPieceSelected = isSelected(rowIndex, colIndex);
             const squareNameStr = squareName(rowIndex, colIndex);
             const isAnimatingFrom = animatingMove?.from === squareNameStr;
@@ -350,7 +369,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
                     style={{
                       ...getPieceStyle(
                         { color: animatingMove.piece.color, type: animatingMove.piece.type },
-                        "assets/pieces/pieces.png"
+                        "/assets/pieces/pieces.png"
                       ),
                       position: "relative",
                       zIndex: 1,

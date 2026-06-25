@@ -7,12 +7,15 @@ interface GameContextType {
   gameId: string | null;
   color: 'white' | 'black' | null;
   isConnected: boolean;
-  createGame: () => Promise<string>;
-  joinGame: (gameId: string) => Promise<string>;
+  isWaiting: boolean;
+  queuePosition: number;
+  joinQueue: () => void;
+  leaveQueue: () => void;
   makeMove: (from: string, to: string, promotion?: string) => Promise<any>;
   getGameState: () => Promise<any>;
   disconnect: () => void;
   opponentDisconnected: boolean;
+  gameMatched: boolean;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -24,7 +27,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [gameId, setGameId] = useState<string | null>(null);
   const [color, setColor] = useState<'white' | 'black' | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [queuePosition, setQueuePosition] = useState(0);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
+  const [gameMatched, setGameMatched] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
@@ -47,6 +53,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     newSocket.on('disconnect', () => {
       console.log('Disconnected from server');
       setIsConnected(false);
+      setIsWaiting(false);
+    });
+
+    newSocket.on('queueStatus', (data) => {
+      console.log('Queue status:', data);
+      setQueuePosition(data.position);
+    });
+
+    newSocket.on('gameMatched', (data) => {
+      console.log('Game matched!', data);
+      setGameId(data.gameId);
+      setColor(data.color);
+      setGameMatched(true);
+      setIsWaiting(false);
+      setQueuePosition(0);
     });
 
     newSocket.on('opponentDisconnected', (data) => {
@@ -63,42 +84,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const createGame = (): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (!socketRef.current) {
-        reject(new Error('Not connected to server'));
-        return;
-      }
-
-      socketRef.current.emit('createGame', (response: any) => {
-        if (response.error) {
-          reject(new Error(response.error));
-        } else {
-          setGameId(response.gameId);
-          setColor(response.color);
-          resolve(response.gameId);
-        }
-      });
-    });
+  const joinQueue = () => {
+    if (!socketRef.current || !isConnected) return;
+    setIsWaiting(true);
+    setGameMatched(false);
+    socketRef.current.emit('joinQueue');
   };
 
-  const joinGame = (gameId: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (!socketRef.current) {
-        reject(new Error('Not connected to server'));
-        return;
-      }
-
-      socketRef.current.emit('joinGame', { gameId }, (response: any) => {
-        if (response.error) {
-          reject(new Error(response.error));
-        } else {
-          setGameId(gameId);
-          setColor(response.color);
-          resolve(response.color);
-        }
-      });
-    });
+  const leaveQueue = () => {
+    if (!socketRef.current) return;
+    setIsWaiting(false);
+    setQueuePosition(0);
+    socketRef.current.emit('leaveQueue');
   };
 
   const makeMove = (from: string, to: string, promotion?: string): Promise<any> => {
@@ -139,6 +136,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (socketRef.current) {
       socketRef.current.disconnect();
       setIsConnected(false);
+      setIsWaiting(false);
+      setGameMatched(false);
     }
   };
 
@@ -149,12 +148,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         gameId,
         color,
         isConnected,
-        createGame,
-        joinGame,
+        isWaiting,
+        queuePosition,
+        joinQueue,
+        leaveQueue,
         makeMove,
         getGameState,
         disconnect,
         opponentDisconnected,
+        gameMatched,
       }}
     >
       {children}

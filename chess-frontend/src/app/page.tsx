@@ -7,12 +7,16 @@ import MultiplayerChessBoard from "@/app/components/MultiplayerChessBoard";
 export default function Home() {
   const [gameReady, setGameReady] = useState(false);
 
+  const handleBackToLobby = () => {
+    setGameReady(false);
+  };
+
   return (
     <GameProvider>
       {!gameReady ? (
         <Lobby onGameReady={() => setGameReady(true)} />
       ) : (
-        <MultiplayerChessBoard onBackToLobby={() => setGameReady(false)} />
+        <MultiplayerChessBoard onBackToLobby={handleBackToLobby} />
       )}
     </GameProvider>
   );

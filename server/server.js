@@ -14,7 +14,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       'http://localhost:3000',
-        `https://chess-xi-livid.vercel.app/`,
+      'https://chess-xi-livid.vercel.app'
     ],
     methods: ['GET', 'POST'],
     credentials: true
@@ -23,6 +23,7 @@ const io = new Server(server, {
 
 // Game state
 const games = new Map(); // gameId -> { players, game, status }
+const queue = []; // Array of socket IDs waiting for a game
 
 // Game statuses
 const GAME_STATUS = {
@@ -35,87 +36,110 @@ const GAME_STATUS = {
 io.on('connection', (socket) => {
   console.log(`Player connected: ${socket.id}`);
 
-  // Create a new game
-  socket.on('createGame', (callback) => {
-    const gameId = uuidv4().slice(0, 8);
-    const game = {
-      id: gameId,
-      players: {
-        white: socket.id,
-        black: null
-      },
-      game: new Chess(),
-      status: GAME_STATUS.WAITING,
-      moveHistory: []
-    };
+  // Join matchmaking queue
+  socket.on('joinQueue', () => {
+    console.log(`Player ${socket.id} joined the queue`);
+    console.log(`Queue size before: ${queue.length}`);
     
-    games.set(gameId, game);
-    socket.join(gameId);
+    // Add player to queue
+    queue.push(socket.id);
+    console.log(`Queue size after: ${queue.length}`);
     
-    console.log(`Game created: ${gameId}`);
-    callback({ gameId, color: 'white' });
+    // Check if there are at least 2 players in queue
+    if (queue.length >= 2) {
+      console.log('Attempting to match players...');
+      
+      // Get first two players
+      const player1Id = queue.shift();
+      const player2Id = queue.shift();
+      
+      console.log(`Matching ${player1Id} and ${player2Id}`);
+      
+      // Create a new game
+      const gameId = uuidv4().slice(0, 8);
+      const game = {
+        id: gameId,
+        players: {
+          white: player1Id,
+          black: player2Id
+        },
+        game: new Chess(),
+        status: GAME_STATUS.PLAYING,
+        moveHistory: []
+      };
+      
+      games.set(gameId, game);
+      
+      // Emit gameMatched to both players
+      io.to(player1Id).emit('gameMatched', {
+        gameId,
+        color: 'white',
+        fen: game.game.fen(),
+        turn: game.game.turn()
+      });
+      
+      io.to(player2Id).emit('gameMatched', {
+        gameId,
+        color: 'black',
+        fen: game.game.fen(),
+        turn: game.game.turn()
+      });
+      
+      // Make both players join the game room
+      io.sockets.sockets.get(player1Id)?.join(gameId);
+      io.sockets.sockets.get(player2Id)?.join(gameId);
+      
+      console.log(`Game created: ${gameId} with ${queue.length} players still in queue`);
+    } else {
+      // Not enough players, wait
+      socket.emit('queueStatus', {
+        message: 'Waiting for opponent...',
+        position: queue.length
+      });
+      console.log(`Player ${socket.id} is waiting. Queue size: ${queue.length}`);
+    }
   });
 
-  // Join an existing game
-  socket.on('joinGame', ({ gameId }, callback) => {
-    const game = games.get(gameId);
-    
-    if (!game) {
-      callback({ error: 'Game not found' });
-      return;
+  // Leave queue
+  socket.on('leaveQueue', () => {
+    const index = queue.indexOf(socket.id);
+    if (index !== -1) {
+      queue.splice(index, 1);
+      console.log(`Player ${socket.id} left the queue`);
     }
-    
-    if (game.status === GAME_STATUS.PLAYING) {
-      callback({ error: 'Game already in progress' });
-      return;
-    }
-    
-    if (game.players.black) {
-      callback({ error: 'Game is full' });
-      return;
-    }
-    
-    // Join the game
-    game.players.black = socket.id;
-    game.status = GAME_STATUS.PLAYING;
-    socket.join(gameId);
-    
-    console.log(`Player joined game: ${gameId}`);
-    
-    // Notify both players that game has started
-    io.to(gameId).emit('gameStarted', {
-      fen: game.game.fen(),
-      turn: game.game.turn()
-    });
-    
-    callback({ color: 'black' });
   });
 
   // Make a move
   socket.on('makeMove', ({ gameId, from, to, promotion }, callback) => {
-    const game = games.get(gameId);
-    
-    if (!game) {
-      callback({ error: 'Game not found' });
-      return;
-    }
-    
-    if (game.status === GAME_STATUS.FINISHED) {
-      callback({ error: 'Game is finished' });
-      return;
-    }
-    
-    // Check if it's the player's turn
-    const isWhiteTurn = game.game.turn() === 'w';
-    const isPlayerWhite = game.players.white === socket.id;
-    const isPlayerBlack = game.players.black === socket.id;
-    
-    if ((isWhiteTurn && !isPlayerWhite) || (!isWhiteTurn && !isPlayerBlack)) {
-      callback({ error: 'Not your turn' });
-      return;
-    }
-    
     try {
+      const game = games.get(gameId);
+      
+      if (!game) {
+        if (typeof callback === 'function') {
+          callback({ error: 'Game not found' });
+        }
+        return;
+      }
+      
+      if (game.status === GAME_STATUS.FINISHED) {
+        if (typeof callback === 'function') {
+          callback({ error: 'Game is finished' });
+        }
+        return;
+      }
+      
+      // Check if it's the player's turn
+      const isWhiteTurn = game.game.turn() === 'w';
+      const isPlayerWhite = game.players.white === socket.id;
+      const isPlayerBlack = game.players.black === socket.id;
+      
+      if ((isWhiteTurn && !isPlayerWhite) || (!isWhiteTurn && !isPlayerBlack)) {
+        if (typeof callback === 'function') {
+          callback({ error: 'Not your turn' });
+        }
+        return;
+      }
+      
       const move = game.game.move({
         from,
         to,
@@ -155,41 +179,66 @@ io.on('connection', (socket) => {
           gameOverMessage
         });
         
-        callback({ success: true, move });
+        if (typeof callback === 'function') {
+          callback({ success: true, move });
+        }
       } else {
-        callback({ error: 'Invalid move' });
+        if (typeof callback === 'function') {
+          callback({ error: 'Invalid move' });
+        }
       }
     } catch (error) {
-      callback({ error: error.message });
+      console.error('Error making move:', error);
+      if (typeof callback === 'function') {
+        callback({ error: error.message || 'Failed to make move' });
+      }
     }
   });
 
   // Get game state
   socket.on('getGameState', ({ gameId }, callback) => {
-    const game = games.get(gameId);
-    
-    if (!game) {
-      callback({ error: 'Game not found' });
-      return;
+    try {
+      const game = games.get(gameId);
+      
+      if (!game) {
+        if (typeof callback === 'function') {
+          callback({ error: 'Game not found' });
+        }
+        return;
+      }
+      
+      if (typeof callback === 'function') {
+        callback({
+          fen: game.game.fen(),
+          turn: game.game.turn(),
+          status: game.status,
+          players: {
+            white: !!game.players.white,
+            black: !!game.players.black
+          },
+          moveHistory: game.moveHistory
+        });
+      }
+    } catch (error) {
+      console.error('Error getting game state:', error);
+      if (typeof callback === 'function') {
+        callback({ error: 'Failed to get game state' });
+      }
     }
-    
-    callback({
-      fen: game.game.fen(),
-      turn: game.game.turn(),
-      status: game.status,
-      players: {
-        white: !!game.players.white,
-        black: !!game.players.black
-      },
-      moveHistory: game.moveHistory
-    });
   });
 
   // Disconnect handling
   socket.on('disconnect', () => {
     console.log(`Player disconnected: ${socket.id}`);
     
-    // Clean up games where this player was the only one
+    // Remove from queue if waiting
+    const queueIndex = queue.indexOf(socket.id);
+    if (queueIndex !== -1) {
+      queue.splice(queueIndex, 1);
+      console.log(`Player ${socket.id} removed from queue`);
+    }
+    
+    // Clean up games where this player was part of
     for (const [gameId, game] of games.entries()) {
       if (game.players.white === socket.id || game.players.black === socket.id) {
         // Notify the other player
@@ -209,18 +258,43 @@ io.on('connection', (socket) => {
 
 // API endpoint for testing
 app.get('/api/games', (req, res) => {
-  const gameList = Array.from(games.entries()).map(([id, game]) => ({
-    id,
-    status: game.status,
-    players: {
-      white: !!game.players.white,
-      black: !!game.players.black
-    }
-  }));
-  res.json(gameList);
+  try {
+    const gameList = Array.from(games.entries()).map(([id, game]) => ({
+      id,
+      status: game.status,
+      players: {
+        white: !!game.players.white,
+        black: !!game.players.black
+      }
+    }));
+    res.json({
+      games: gameList,
+      queueSize: queue.length
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get games' });
+  }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// Handle errors
+server.on('error', (error) => {
+  console.error('Server error:', error);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception:', error);
+});
+
+process.on('unhandledRejection', (error) => {
+  console.error('Unhandled rejection:', error);
 });
