@@ -19,6 +19,7 @@ export default function Home() {
   const BOARD_SIZE = 184 * BOARD_SIZE_SCALE_CONST; // Størrelse på selve brettet
   const BORDER_SIZE = (BOARD_IMAGE_SIZE - BOARD_SIZE) / 2; // 9px
   const SQUARE_SIZE = BOARD_SIZE / 8; // 23px
+  const PIECE_SIZE = SQUARE_SIZE; // Define piece size
 
   function squareName(rowIndex: number, colIndex: number): string {
     return files[colIndex] + (8 - rowIndex);
@@ -29,21 +30,19 @@ export default function Home() {
       style={{
         width: BOARD_IMAGE_SIZE,
         height: BOARD_IMAGE_SIZE,
-        backgroundImage: "url('/board.png')", // Sett riktig filnavn
+        backgroundImage: "url('/board.png')",
         backgroundSize: `${BOARD_IMAGE_SIZE}px ${BOARD_IMAGE_SIZE}px`,
         backgroundPosition: "0 0",
         display: "grid",
         gridTemplateColumns: `repeat(8, ${SQUARE_SIZE}px)`,
         gap: 0,
-        padding: `${BORDER_SIZE}px`, // 9px padding på alle kanter
+        padding: `${BORDER_SIZE}px`,
         boxSizing: "border-box",
         imageRendering: "pixelated",
       }}
     >
       {board.map((row, rowIndex) =>
         row.map((square, colIndex) => {
-          // Vi trenger ikke backgroundColor lenger siden bakgrunnsbildet har det
-          // Men vi kan ha gjennomsiktige ruter for interaksjon
           const isDark = (rowIndex + colIndex) % 2 === 1;
 
           return (
@@ -78,12 +77,24 @@ export default function Home() {
               }}
             >
               {square && (
-                <div 
-                  style={{
-                    ...getPieceStyle(square, "/pieces.png"),
-                    transform: "translateY(-15px)",
-                  }}
-                />
+                <div style={{ 
+                  position: "relative", 
+                  width: PIECE_SIZE, 
+                  height: PIECE_SIZE,
+                  transform: "translateY(-15px)"
+                }}>
+                  <div
+                    style={{
+                      ...getPieceStyle(square, "/shadows.png"),
+                      position: "absolute",
+                    }}
+                  />
+                  <div
+                    style={{
+                      ...getPieceStyle(square, "/pieces.png"),
+                    }}
+                  />
+                </div>
               )}
             </div>
           );
