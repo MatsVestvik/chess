@@ -68,13 +68,11 @@ export default function Home() {
               style={{
                 width: SQUARE_SIZE,
                 height: SQUARE_SIZE,
-                // Gjennomsiktig slik at bakgrunnsbildet vises
                 backgroundColor: "transparent",
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-end",
                 justifyContent: "center",
                 cursor: "pointer",
-                // Valgfritt: marker valgt rute
                 outline: selected === squareName(rowIndex, colIndex) ? "3px solid yellow" : "none",
                 outlineOffset: "-3px",
               }}
@@ -83,7 +81,7 @@ export default function Home() {
                 <div 
                   style={{
                     ...getPieceStyle(square, "/pieces.png"),
-                    margin: "auto",
+                    transform: "translateY(-15px)",
                   }}
                 />
               )}
