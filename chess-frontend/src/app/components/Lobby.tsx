@@ -50,7 +50,7 @@ export default function Lobby({ onGameReady }: LobbyProps) {
         gap: '20px',
       }}
     >
-      <h1 style={{ fontSize: '48px' }}>♛ Multiplayer Chess</h1>
+      <h1 style={{ fontSize: '48px' }}>Multiplayer Chess</h1>
       
       <div style={{ color: isConnected ? '#4CAF50' : '#f44336', fontSize: '14px' }}>
         {isConnected ? '● Connected' : '● Disconnected'}
@@ -111,7 +111,7 @@ export default function Lobby({ onGameReady }: LobbyProps) {
               e.currentTarget.style.boxShadow = '0 4px 20px rgba(247, 151, 30, 0.4)';
             }}
           >
-            🔍 Find Match
+            Find Match
           </button>
         ) : (
           <div
