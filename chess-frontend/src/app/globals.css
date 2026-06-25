@@ -29,3 +29,9 @@ body {
   font-style: normal;
   font-display: swap;
 }
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
