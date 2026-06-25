@@ -1,26 +1,19 @@
 "use client";
 import { useState } from "react";
-import StartScreen from "@/app/components/StartScreen";
-import ChessBoard from "@/app/components/ChessBoard";
+import { GameProvider } from "@/app/context/GameContext";
+import Lobby from "@/app/components/Lobby";
+import MultiplayerChessBoard from "@/app/components/MultiplayerChessBoard";
 
 export default function Home() {
-  const [gameStarted, setGameStarted] = useState(false);
-
-  const handleStartGame = () => {
-    setGameStarted(true);
-  };
-
-  const handleBackToMenu = () => {
-    setGameStarted(false);
-  };
+  const [gameReady, setGameReady] = useState(false);
 
   return (
-    <>
-      {!gameStarted ? (
-        <StartScreen onStartGame={handleStartGame} />
+    <GameProvider>
+      {!gameReady ? (
+        <Lobby onGameReady={() => setGameReady(true)} />
       ) : (
-        <ChessBoard onBackToMenu={handleBackToMenu} />
+        <MultiplayerChessBoard onBackToLobby={() => setGameReady(false)} />
       )}
-    </>
+    </GameProvider>
   );
 }
