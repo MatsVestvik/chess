@@ -12,7 +12,6 @@ export default function Home() {
   const board = chessRef.current.board();
 
   const [selected, setSelected] = useState<string | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   // Konfigurasjon for brettet ditt
   const BOARD_SIZE_SCALE_CONST = 3;
@@ -32,9 +31,6 @@ export default function Home() {
     if (selected == null) {
       if (square != null) {
         setSelected(name);
-        setIsAnimating(true);
-        // Reset animation after a short delay
-        setTimeout(() => setIsAnimating(false), 300);
       }
     } else {
       try {
@@ -44,7 +40,6 @@ export default function Home() {
         console.log("Ugyldig trekk");
       }
       setSelected(null);
-      setIsAnimating(false);
     }
   };
 
@@ -95,10 +90,10 @@ export default function Home() {
                   position: "relative", 
                   width: PIECE_SIZE, 
                   height: PIECE_SIZE,
-                  transform: isPieceSelected && isAnimating 
+                  transform: isPieceSelected 
                     ? "translateY(-30px)" 
                     : "translateY(-15px)",
-                  transition: "transform 0.15s ease-out",
+                  transition: "transform 0.2s ease-out",
                 }}>
                   {/* Shadow */}
                   <div
@@ -107,11 +102,11 @@ export default function Home() {
                       position: "absolute",
                       top: 0,
                       left: 0,
-                      transition: "transform 0.15s ease-out",
-                      transform: isPieceSelected && isAnimating
+                      transition: "transform 0.2s ease-out, opacity 0.2s ease-out",
+                      transform: isPieceSelected
                         ? "translate(-8px, -8px)" 
                         : "translate(0, 0)",
-                      opacity: isPieceSelected && isAnimating ? 0.5 : 1,
+                      opacity: isPieceSelected ? 0.5 : 1,
                     }}
                   />
                   {/* Piece */}
@@ -121,7 +116,6 @@ export default function Home() {
                       position: "relative",
                       zIndex: 1,
                       pointerEvents: "none",
-                      transition: "transform 0.15s ease-out",
                     }}
                   />
                 </div>
