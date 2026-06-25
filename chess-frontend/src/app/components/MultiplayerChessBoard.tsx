@@ -248,6 +248,8 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
           style={{
             width: BOARD_IMAGE_SIZE,
             height: BOARD_IMAGE_SIZE,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
             backgroundImage: "url('/assets/boards/board.png')",
             backgroundSize: `${BOARD_IMAGE_SIZE}px ${BOARD_IMAGE_SIZE}px`,
             backgroundPosition: "0 0",
@@ -260,7 +262,6 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
             position: "relative",
           }}
         >
-      </div>
         {board.map((row: any, rowIndex: number) =>
           row.map((square: any, colIndex: number) => {
             const isPieceSelected = isSelected(rowIndex, colIndex);
@@ -402,6 +403,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
             })()}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
