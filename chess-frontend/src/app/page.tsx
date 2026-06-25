@@ -34,7 +34,7 @@ export default function Home() {
       }
     } else {
       try {
-        chessRef.current.move({ from: selected, to: name });
+        chessRef.current.move({ from: selected, to: name, promotion: `q` });
         setFen(chessRef.current.fen());
       } catch (error) {
         console.log("Ugyldig trekk");
