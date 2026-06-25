@@ -35,6 +35,25 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
   const BOARD_SIZE_SCALE_CONST = 3;
   const BOARD_IMAGE_SIZE = 202 * BOARD_SIZE_SCALE_CONST;
   const BOARD_SIZE = 184 * BOARD_SIZE_SCALE_CONST;
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    function updateScale() {
+      const maxWidth = window.innerWidth - 32;   // 16px breathing room each side
+      const maxHeight = window.innerHeight - 140; // room for the header bar above
+      const next = Math.min(1, maxWidth / BOARD_IMAGE_SIZE, maxHeight / BOARD_IMAGE_SIZE);
+      setScale(next);
+    }
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    window.addEventListener('orientationchange', updateScale);
+    return () => {
+      window.removeEventListener('resize', updateScale);
+      window.removeEventListener('orientationchange', updateScale);
+    };
+  }, []);
+
+  const displaySize = BOARD_IMAGE_SIZE * scale;
   const BORDER_SIZE = (BOARD_IMAGE_SIZE - BOARD_SIZE) / 2;
   const SQUARE_SIZE = BOARD_SIZE / 8;
   const PIECE_SIZE = SQUARE_SIZE;
@@ -191,7 +210,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          width: BOARD_IMAGE_SIZE,
+          width: displaySize,
           marginBottom: "20px",
           padding: "0 10px",
         }}
@@ -224,22 +243,24 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
         </div>
       </div>
 
-      <div
-        style={{
-          width: BOARD_IMAGE_SIZE,
-          height: BOARD_IMAGE_SIZE,
-          backgroundImage: "url('/assets/boards/board.png')",
-          backgroundSize: `${BOARD_IMAGE_SIZE}px ${BOARD_IMAGE_SIZE}px`,
-          backgroundPosition: "0 0",
-          display: "grid",
-          gridTemplateColumns: `repeat(8, ${SQUARE_SIZE}px)`,
-          gap: 0,
-          padding: `${BORDER_SIZE}px`,
-          boxSizing: "border-box",
-          imageRendering: "pixelated",
-          position: "relative",
-        }}
-      >
+      <div style={{ width: displaySize, height: displaySize, overflow: "hidden" }}>
+        <div
+          style={{
+            width: BOARD_IMAGE_SIZE,
+            height: BOARD_IMAGE_SIZE,
+            backgroundImage: "url('/assets/boards/board.png')",
+            backgroundSize: `${BOARD_IMAGE_SIZE}px ${BOARD_IMAGE_SIZE}px`,
+            backgroundPosition: "0 0",
+            display: "grid",
+            gridTemplateColumns: `repeat(8, ${SQUARE_SIZE}px)`,
+            gap: 0,
+            padding: `${BORDER_SIZE}px`,
+            boxSizing: "border-box",
+            imageRendering: "pixelated",
+            position: "relative",
+          }}
+        >
+      </div>
         {board.map((row: any, rowIndex: number) =>
           row.map((square: any, colIndex: number) => {
             const isPieceSelected = isSelected(rowIndex, colIndex);
