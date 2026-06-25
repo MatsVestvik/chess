@@ -29,7 +29,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
   const [gameOverMessage, setGameOverMessage] = useState("");
   const [animatingMove, setAnimatingMove] = useState<MoveData | null>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
-  const chessRef = useRef(new Chess(fen));
+  const chessRef = useRef(new Chess());
 
   // Board configuration
   const BOARD_SIZE_SCALE_CONST = 3;
