@@ -13,30 +13,27 @@ export default function StartScreen({ onStartGame }: StartScreenProps) {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "100vh",
-        background: "#1a1a2e",
         color: "white",
-        fontFamily: "Arial, sans-serif",
       }}
     >
-      <h1 style={{ fontSize: "64px", marginBottom: "10px" }}>♛ Chess</h1>
+      <h1 style={{ fontSize: "64px", marginBottom: "10px" }}>Custom Chess</h1>
       <button
         onClick={onStartGame}
         style={{
           padding: "16px 48px",
           fontSize: "20px",
           fontWeight: "bold",
-          color: "white",
-          background: "#f7971e",
-          border: "none",
-          borderRadius: "8px",
+          color: "black",
+          background: "#ffffff",
+          border: "10px solid transparent",
           cursor: "pointer",
           transition: "transform 0.2s",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = "scale(1.05)";
+          e.currentTarget.style.borderColor = "black";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.borderColor = "white";
         }}
       >
         Start Game

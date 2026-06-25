@@ -1,0 +1,31 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100vh;
+  background: #1a1a2e;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'ManaSPC', 'Courier New', monospace;
+  background: #1a1a2e;
+}
+
+* {
+  font-family: 'ManaSPC', 'Courier New', monospace !important;
+}
+
+@font-face {
+  font-family: 'ManaSPC';
+  src: url('/font/manaspc.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

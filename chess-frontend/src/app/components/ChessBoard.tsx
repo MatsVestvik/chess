@@ -70,7 +70,7 @@ export default function ChessBoard({ onBackToMenu }: ChessBoardProps) {
           setAnimationProgress(0);
           
           const startTime = Date.now();
-          const duration = 300;
+          const duration = 500;
           
           const animate = () => {
             const elapsed = Date.now() - startTime;
@@ -119,11 +119,10 @@ export default function ChessBoard({ onBackToMenu }: ChessBoardProps) {
           color: "white",
           background: "rgba(255,255,255,0.1)",
           border: "1px solid rgba(255,255,255,0.2)",
-          borderRadius: "8px",
           cursor: "pointer",
         }}
       >
-        ← Back
+        HOME 
       </button>
       
       <div 
