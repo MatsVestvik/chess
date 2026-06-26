@@ -95,20 +95,20 @@ export default function Lobby({ onGameReady }: LobbyProps) {
               transition: 'transform 0.2s, border-color 0.2s, box-shadow 0.2s',
               fontFamily: "'ManaSPC', 'Courier New', monospace",
               opacity: !isConnected ? 0.5 : 1,
-              boxShadow: isConnected ? '0 4px 20px rgba(247, 151, 30, 0.4)' : 'none',
+              boxShadow: isConnected ? '0 4px 20px rgba(34, 255, 0, 0.4)' : 'none',
               width: '100%',
             }}
             onMouseEnter={(e) => {
               if (isConnected) {
                 e.currentTarget.style.borderColor = 'white';
                 e.currentTarget.style.transform = 'scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 6px 30px rgba(247, 151, 30, 0.6)';
+                e.currentTarget.style.boxShadow = '0 6px 30px rgba(3, 189, 0, 0.6)';
               }
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = 'transparent';
               e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(247, 151, 30, 0.4)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(34, 255, 0, 0.4)';
             }}
           >
             Find Match
