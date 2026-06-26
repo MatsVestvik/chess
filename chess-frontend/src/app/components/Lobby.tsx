@@ -88,7 +88,7 @@ export default function Lobby({ onGameReady }: LobbyProps) {
               color: 'white',
               background: !isConnected 
                 ? 'rgba(255,255,255,0.1)' 
-                : 'linear-gradient(135deg, #f7971e, #ffd200)',
+                :  `rgb(28, 210, 0)`, 
               border: '2px solid transparent',
               borderRadius: '12px',
               cursor: !isConnected ? 'not-allowed' : 'pointer',
