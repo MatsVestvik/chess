@@ -111,6 +111,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
             transformOrigin: "top left",
           }}
         >
+
           <ChessBoard
             board={board}
             selectedSquare={selected}
@@ -128,6 +129,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
             squareSize={squareSize}
             borderSize={borderSize}
             pieceSize={pieceSize}
+            boardImage={flipped ? '/assets/boards/blackboard.png' : '/assets/boards/whiteboard.png'} // Add this line
           />
         </div>
       </div>

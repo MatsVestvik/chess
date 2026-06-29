@@ -27,6 +27,7 @@ interface ChessBoardProps {
   squareSize: number;
   borderSize: number;
   pieceSize: number;
+  boardImage: string; // Add this new prop
 }
 
 export function ChessBoard({
@@ -43,6 +44,7 @@ export function ChessBoard({
   squareSize,
   borderSize,
   pieceSize,
+  boardImage, // Destructure the new prop
 }: ChessBoardProps) {
   // Create board rows with flip support
   const boardRows = useMemo(() => {
@@ -59,7 +61,7 @@ export function ChessBoard({
       style={{
         width: boardSize,
         height: boardSize,
-        backgroundImage: "url('/assets/boards/board.png')",
+        backgroundImage: `url('${boardImage}')`, // Use the dynamic board image
         backgroundSize: `${boardSize}px ${boardSize}px`,
         backgroundPosition: "0 0",
         display: "grid",
