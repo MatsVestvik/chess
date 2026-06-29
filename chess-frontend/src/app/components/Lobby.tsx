@@ -134,7 +134,7 @@ export default function Lobby({ onGameReady }: LobbyProps) {
                 width: '100%',
               }}
             >
-              ⏳ Searching for opponent...
+              Searching for opponent...
               {queuePosition > 0 && (
                 <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', marginTop: '8px' }}>
                   {queuePosition} player{queuePosition > 1 ? 's' : ''} in queue
@@ -151,8 +151,8 @@ export default function Lobby({ onGameReady }: LobbyProps) {
                 padding: '12px 24px',
                 fontSize: '16px',
                 color: 'white',
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'rgb(159, 0, 0)',
+                border: '1px solid rgb(255, 255, 255)',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'background 0.2s',
@@ -160,10 +160,10 @@ export default function Lobby({ onGameReady }: LobbyProps) {
                 width: '100%',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                e.currentTarget.style.border= '1px solid rgb(255, 76, 76)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                e.currentTarget.style.border= '1px solid rgb(255, 255, 255)';
               }}
             >
               Cancel
