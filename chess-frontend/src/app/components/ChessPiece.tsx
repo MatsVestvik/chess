@@ -29,7 +29,7 @@ export function ChessPiece({ piece, isSelected, pieceSize, squareSize }: ChessPi
       {/* Shadow layer */}
       <div
         style={{
-          ...getPieceStyle(piece, "/assets/shadows/shadows.png"),
+          ...getPieceStyle(piece, "/assets/shadows/shadows.png", pieceSize),
           position: "absolute",
           top: 0,
           left: 0,
@@ -43,7 +43,7 @@ export function ChessPiece({ piece, isSelected, pieceSize, squareSize }: ChessPi
       {/* Piece layer */}
       <div
         style={{
-          ...getPieceStyle(piece, "/assets/pieces/pieces.png"),
+          ...getPieceStyle(piece, "/assets/pieces/pieces.png", pieceSize),
           position: "relative",
           zIndex: 1,
           pointerEvents: "none",

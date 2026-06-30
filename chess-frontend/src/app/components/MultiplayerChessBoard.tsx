@@ -184,7 +184,6 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
           style={{
             width: boardSize,
             height: boardSize,
-            transform: `scale(${scale})`,
             transformOrigin: "top left",
           }}
         >

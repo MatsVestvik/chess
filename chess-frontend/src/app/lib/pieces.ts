@@ -11,7 +11,7 @@ const SCALE_FACTOR = 3;
 const PIECE_SIZE = BASE_SIZE * SCALE_FACTOR;
 
 const SPRITE_WIDTH = 3 * PIECE_SIZE;
-const SPRITE_HEIGHT = 4 * PIECE_SIZE; 
+const SPRITE_HEIGHT = 4 * PIECE_SIZE;
 
 // Mapper fra brikketype til posisjon i sprite sheet (kolonne, rad)
 const piecePositions: Record<string, { col: number; row: number }> = {
@@ -39,21 +39,33 @@ export function getPiecePosition(square: any): { col: number; row: number } | nu
 }
 
 // Hjelpefunksjon for å hente CSS for en brikke fra sprite sheet
-export function getPieceStyle(square: any, spritePath: string = "/pieces.png"): React.CSSProperties {
+// `size` lets callers render the piece at any pixel size (e.g. when the board
+// is scaled for mobile); the sprite sheet's backgroundSize must scale
+// proportionally with `size` or the wrong crop will show.
+export function getPieceStyle(
+  square: any,
+  spritePath: string = "/pieces.png",
+  size: number = PIECE_SIZE
+): React.CSSProperties {
   if (!square) return {};
 
   const pos = getPiecePosition(square);
   if (!pos) return {};
 
-  const x = pos.col * PIECE_SIZE;
-  const y = pos.row * PIECE_SIZE;
+  // Scale factor relative to the sprite sheet's native piece size
+  const scaleRatio = size / PIECE_SIZE;
+  const scaledSpriteWidth = SPRITE_WIDTH * scaleRatio;
+  const scaledSpriteHeight = SPRITE_HEIGHT * scaleRatio;
+
+  const x = pos.col * size;
+  const y = pos.row * size;
 
   return {
-    width: PIECE_SIZE,
-    height: PIECE_SIZE,
+    width: size,
+    height: size,
     backgroundImage: `url(${spritePath})`,
     backgroundPosition: `-${x}px -${y}px`,
-    backgroundSize: `${SPRITE_WIDTH}px ${SPRITE_HEIGHT}px`,
+    backgroundSize: `${scaledSpriteWidth}px ${scaledSpriteHeight}px`,
     display: "inline-block",
     flexShrink: 0,
     imageRendering: "pixelated",

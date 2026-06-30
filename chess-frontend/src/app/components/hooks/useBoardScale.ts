@@ -15,8 +15,8 @@ export function useBoardScale(scaleConstant: number) {
 
   useEffect(() => {
     function updateScale() {
-      const maxWidth = window.innerWidth - 32;
-      const maxHeight = window.innerHeight - 140;
+      const maxWidth = window.innerWidth;
+      const maxHeight = window.innerHeight;
       const nextScale = Math.min(1, maxWidth / BOARD_IMAGE_SIZE, maxHeight / BOARD_IMAGE_SIZE);
       
       setScale(nextScale);
