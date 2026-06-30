@@ -11,6 +11,12 @@ export function useChessGame(color: 'w' | 'b' | null) {
   const [gameOver, setGameOver] = useState(false);
   const [gameOverMessage, setGameOverMessage] = useState("");
   const chessRef = useRef(new Chess());
+  const moveListenersRef = useRef<((data: any) => void)[]>([]);
+
+  // Function to notify move listeners
+  const notifyMoveListeners = (moveData: any) => {
+    moveListenersRef.current.forEach(listener => listener(moveData));
+  };
 
   // Update board when FEN changes
   useEffect(() => {
@@ -46,7 +52,16 @@ export function useChessGame(color: 'w' | 'b' | null) {
     if (!socket) return;
 
     const handleMoveMade = (data: any) => {
+      // Extract move data for animation
+      const moveData = data.moveData || {
+        from: data.from || '',
+        to: data.to || '',
+        piece: data.piece || { color: color === 'w' ? 'b' : 'w', type: 'p' }
+      };
+      
       setFen(data.fen);
+      notifyMoveListeners(moveData);
+      
       if (data.gameOver) {
         setGameOver(true);
         setGameOverMessage(data.gameOverMessage || 'Game Over');
@@ -87,6 +102,14 @@ export function useChessGame(color: 'w' | 'b' | null) {
     return result.success;
   };
 
+  // Subscribe to move events
+  const subscribeToMoves = (listener: (data: any) => void) => {
+    moveListenersRef.current.push(listener);
+    return () => {
+      moveListenersRef.current = moveListenersRef.current.filter(l => l !== listener);
+    };
+  };
+
   return {
     board,
     fen,
@@ -97,5 +120,6 @@ export function useChessGame(color: 'w' | 'b' | null) {
     handleMove,
     setGameOver,
     setGameOverMessage,
+    subscribeToMoves, // Add this
   };
 }

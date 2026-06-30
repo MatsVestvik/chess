@@ -7,6 +7,7 @@ import { useMoveAnimation } from "./hooks/useMoveAnimation";
 import { ChessBoard } from "./ChessBoard";
 import { BoardControls } from "./BoardControls";
 import { BOARD_SIZE_SCALE_CONST } from "./utils/boardUtils";
+import { Square } from "chess.js"; // Import Square type from chess.js
 
 interface MultiplayerChessBoardProps {
   onBackToLobby: () => void;
@@ -26,9 +27,11 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
     gameOver,
     gameOverMessage,
     handleMove,
+    subscribeToMoves,
+    chessRef, // Add this
   } = useChessGame(chessColor);
 
-  const { animatingMove, animationProgress } = useMoveAnimation();
+  const { animatingMove, animationProgress, startAnimation } = useMoveAnimation();
   const { scale, boardSize, squareSize, borderSize, pieceSize } = useBoardScale(
     BOARD_SIZE_SCALE_CONST
   );
@@ -38,7 +41,23 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
     if (color === 'black' && !flipped) {
       setFlipped(true);
     }
-  }, [color]); // Remove flipped from dependencies to avoid loop
+  }, [color]);
+
+  // Subscribe to move events for animation
+  useEffect(() => {
+    const handleMoveComplete = (moveData: { from: string; to: string; piece: { color: 'w' | 'b'; type: string } }) => {
+      if (moveData) {
+        startAnimation(moveData);
+      }
+    };
+
+    // Subscribe to move events from the chess game
+    const unsubscribe = subscribeToMoves(handleMoveComplete);
+    
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [startAnimation, subscribeToMoves]);
 
   const handleSquareClick = async (rowIndex: number, colIndex: number, square: any) => {
     if (gameOver || !isMyTurn || opponentDisconnected) return;
@@ -47,6 +66,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
     const name = files[colIndex] + (8 - rowIndex);
 
     if (selected === null) {
+      // Select a piece
       if (square) {
         // Use chessColor for comparison (w/b)
         const isMyPiece = (chessColor === 'w' && square.color === 'w') || 
@@ -56,8 +76,65 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
         }
       }
     } else {
-      const result = await handleMove(selected, name);
-      if (result) {
+      // If clicking on the same square, deselect
+      if (selected === name) {
+        setSelected(null);
+        return;
+      }
+
+      // If clicking on another of your own pieces, switch selection
+      if (square) {
+        const isMyPiece = (chessColor === 'w' && square.color === 'w') || 
+                         (chessColor === 'b' && square.color === 'b');
+        if (isMyPiece) {
+          setSelected(name);
+          return;
+        }
+      }
+
+      // Validate the move locally before sending to server
+      const chess = chessRef.current;
+      if (!chess) {
+        setSelected(null);
+        return;
+      }
+
+      // Check if the move is valid - convert to Square type
+      const fromSquare = selected as Square;
+      const toSquare = name as Square;
+      
+      // Get all moves for the selected square
+      const moves = chess.moves({ square: fromSquare, verbose: true });
+      const isValidMove = moves.some(move => move.to === toSquare);
+      
+      if (!isValidMove) {
+        // Invalid move - just deselect
+        setSelected(null);
+        return;
+      }
+
+      // Valid move - proceed
+      const fromRow = 8 - parseInt(selected[1]);
+      const fromCol = selected.charCodeAt(0) - 97;
+      const fromSquareData = board[fromRow]?.[fromCol];
+      const piece = fromSquareData ? { color: fromSquareData.color, type: fromSquareData.type } : null;
+      
+      try {
+        const result = await handleMove(selected, name);
+        if (result && piece) {
+          // Start animation when move is successful
+          startAnimation({
+            from: selected,
+            to: name,
+            piece: piece
+          });
+          setSelected(null);
+        } else {
+          setSelected(null);
+        }
+      } catch (error) {
+        // If there's still an error, just deselect
+        console.log('Move error:', error);
         setSelected(null);
       }
     }
@@ -111,7 +188,6 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
             transformOrigin: "top left",
           }}
         >
-
           <ChessBoard
             board={board}
             selectedSquare={selected}
@@ -129,7 +205,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
             squareSize={squareSize}
             borderSize={borderSize}
             pieceSize={pieceSize}
-            boardImage={flipped ? '/assets/boards/blackboard.png' : '/assets/boards/whiteboard.png'} // Add this line
+            boardImage={flipped ? '/assets/boards/blackboard.png' : '/assets/boards/whiteboard.png'}
           />
         </div>
       </div>
