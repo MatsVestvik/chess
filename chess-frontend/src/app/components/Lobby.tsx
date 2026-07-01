@@ -50,7 +50,7 @@ export default function Lobby({ onGameReady }: LobbyProps) {
         gap: '20px',
       }}
     >
-      <h1 style={{ fontSize: '48px' }}>Multiplayer Chess</h1>
+      <h1 style={{ fontSize: '48px' }}>MHESS</h1>
       
       <div style={{ color: isConnected ? '#4CAF50' : '#f44336', fontSize: '14px' }}>
         {isConnected ? '● Connected' : '● Disconnected'}

@@ -118,7 +118,8 @@ export function MoveAnimation({
             style={{
               ...getPieceStyle(
                 { color: move.piece.color, type: move.piece.type },
-                "/assets/pieces/pieces.png"
+                "/assets/pieces/pieces.png",
+                pieceSize
               ),
               position: "relative",
               zIndex: 1,
@@ -145,7 +146,8 @@ export function MoveAnimation({
           style={{
             ...getPieceStyle(
               { color: move.piece.color, type: move.piece.type },
-              "/assets/shadows/shadows.png"
+              "/assets/shadows/shadows.png",
+              pieceSize
             ),
             position: "absolute",
             top: 0,
@@ -161,7 +163,8 @@ export function MoveAnimation({
           style={{
             ...getPieceStyle(
               { color: move.piece.color, type: move.piece.type },
-              "/assets/pieces/pieces.png"
+              "/assets/pieces/pieces.png",
+              pieceSize
             ),
             position: "relative",
             zIndex: 1,
