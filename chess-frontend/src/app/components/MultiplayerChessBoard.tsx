@@ -204,7 +204,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
             squareSize={squareSize}
             borderSize={borderSize}
             pieceSize={pieceSize}
-            boardImage={flipped ? '/assets/boards/blackboard.png' : '/assets/boards/whiteboard.png'}
+            boardImage={flipped ? '/assets/boards/boarderlessblackboard.png' : '/assets/boards/boarderlesswhiteboard.png'}
           />
         </div>
       </div>

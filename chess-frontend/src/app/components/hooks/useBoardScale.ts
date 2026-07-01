@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const BOARD_IMAGE_SIZE_BASE = 202;
+const BOARD_IMAGE_SIZE_BASE = 184;
 const BOARD_SIZE_BASE = 184;
 
 export function useBoardScale(scaleConstant: number) {
