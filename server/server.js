@@ -109,6 +109,34 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Leave an active game
+  socket.on('leaveGame', ({ gameId }) => {
+    const game = games.get(gameId);
+
+    if (!game) {
+      return;
+    }
+
+    const isWhitePlayer = game.players.white === socket.id;
+    const isBlackPlayer = game.players.black === socket.id;
+
+    if (!isWhitePlayer && !isBlackPlayer) {
+      return;
+    }
+
+    const opponentId = isWhitePlayer ? game.players.black : game.players.white;
+
+    if (opponentId) {
+      io.to(opponentId).emit('opponentDisconnected', {
+        message: 'Your opponent left the game'
+      });
+    }
+
+    socket.leave(gameId);
+    games.delete(gameId);
+    console.log(`Game removed by player exit: ${gameId}`);
+  });
+
   // Make a move
   socket.on('makeMove', ({ gameId, from, to, promotion }, callback) => {
     try {

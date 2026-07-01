@@ -14,7 +14,7 @@ interface MultiplayerChessBoardProps {
 }
 
 export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChessBoardProps) {
-  const { color, opponentDisconnected, leaveQueue } = useGame();
+  const { color, opponentDisconnected, leaveGame } = useGame();
   const [flipped, setFlipped] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -140,8 +140,8 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
     }
   };
 
-  const handleBackToLobby = () => {
-    leaveQueue();
+  const handleHome = () => {
+    leaveGame();
     onBackToLobby();
   };
 
@@ -169,7 +169,7 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
       }}
     >
       <BoardControls
-        onBackToLobby={handleBackToLobby}
+        onBackToLobby={handleHome}
         onFlipBoard={handleFlipBoard}
         isFlipped={flipped}
         gameOver={gameOver}

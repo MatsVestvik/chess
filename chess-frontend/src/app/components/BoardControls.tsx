@@ -44,7 +44,7 @@ export function BoardControls({
           fontFamily: "'ManaSPC', 'Courier New', monospace",
         }}
       >
-        ← Lobby
+        Home
       </button>
 
       <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>

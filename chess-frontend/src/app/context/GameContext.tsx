@@ -11,6 +11,7 @@ interface GameContextType {
   queuePosition: number;
   joinQueue: () => void;
   leaveQueue: () => void;
+  leaveGame: () => void;
   makeMove: (from: string, to: string, promotion?: string) => Promise<any>;
   getGameState: () => Promise<any>;
   disconnect: () => void;
@@ -98,6 +99,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     socketRef.current.emit('leaveQueue');
   };
 
+  const leaveGame = () => {
+    if (socketRef.current && gameId) {
+      socketRef.current.emit('leaveGame', { gameId });
+    }
+
+    setGameId(null);
+    setColor(null);
+    setIsWaiting(false);
+    setQueuePosition(0);
+    setOpponentDisconnected(false);
+    setGameMatched(false);
+  };
+
   const makeMove = (from: string, to: string, promotion?: string): Promise<any> => {
     return new Promise((resolve, reject) => {
       if (!socketRef.current || !gameId) {
@@ -152,6 +166,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         queuePosition,
         joinQueue,
         leaveQueue,
+        leaveGame,
         makeMove,
         getGameState,
         disconnect,
