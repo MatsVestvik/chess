@@ -24,6 +24,7 @@ export function ChessPiece({ piece, isSelected, pieceSize, squareSize }: ChessPi
           ? `translateY(${verticalOffset - 15}px)` 
           : `translateY(${verticalOffset}px)`,
         transition: "transform 0.2s ease-out",
+        overflow: "visible",
       }}
     >
       {/* Shadow layer */}

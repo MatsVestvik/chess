@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 const BOARD_IMAGE_SIZE_BASE = 184;
 const BOARD_SIZE_BASE = 184;
+const RESERVED_VERTICAL_SPACE = 120;
 
 export function useBoardScale(scaleConstant: number) {
   const BOARD_IMAGE_SIZE = BOARD_IMAGE_SIZE_BASE * scaleConstant;
@@ -16,7 +17,7 @@ export function useBoardScale(scaleConstant: number) {
   useEffect(() => {
     function updateScale() {
       const maxWidth = window.innerWidth;
-      const maxHeight = window.innerHeight;
+      const maxHeight = Math.max(0, window.innerHeight - RESERVED_VERTICAL_SPACE);
       const nextScale = Math.min(1, maxWidth / BOARD_IMAGE_SIZE, maxHeight / BOARD_IMAGE_SIZE);
       
       setScale(nextScale);

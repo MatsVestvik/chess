@@ -46,6 +46,7 @@ export function ChessSquare({
         outline: isSelected ? "3px solid yellow" : isValidTarget ? "3px solid #4CAF50" : "none",
         outlineOffset: "-3px",
         position: "relative",
+        overflow: "visible",
       }}
     >
       {/* Move target indicator - rendered as a separate element */}

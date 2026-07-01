@@ -179,12 +179,18 @@ export default function MultiplayerChessBoard({ onBackToLobby }: MultiplayerChes
         color={displayColor}
       />
 
-      <div style={{ width: boardSize, height: boardSize, overflow: "hidden" }}>
+      <div
+        style={{
+          width: boardSize,
+          overflow: "visible",
+        }}
+      >
         <div
           style={{
             width: boardSize,
             height: boardSize,
             transformOrigin: "top left",
+            overflow: "visible",
           }}
         >
           <ChessBoard

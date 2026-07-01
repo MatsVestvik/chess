@@ -1,4 +1,5 @@
 interface BoardControlsProps {
+  id?: string;
   onBackToLobby: () => void;
   onFlipBoard: () => void;
   isFlipped: boolean;
@@ -10,6 +11,7 @@ interface BoardControlsProps {
 }
 
 export function BoardControls({
+  id,
   onBackToLobby,
   onFlipBoard,
   isFlipped,
@@ -21,6 +23,7 @@ export function BoardControls({
 }: BoardControlsProps) {
   return (
     <div
+      id={id}
       style={{
         display: "flex",
         justifyContent: "space-between",

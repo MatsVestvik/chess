@@ -71,6 +71,7 @@ export function ChessBoard({
         boxSizing: "border-box",
         imageRendering: "pixelated",
         position: "relative",
+        overflow: "visible",
       }}
     >
       {boardRows.map((row: any, rowIndex: number) => {
